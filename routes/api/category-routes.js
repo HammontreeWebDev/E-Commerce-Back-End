@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { restart } = require('nodemon');
 const { Category, Product } = require('../../models');
 
 // The `/api/categories` endpoint
@@ -67,12 +68,23 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   // delete a category by its `id` value
+  try {
   const categoryData = await Category.destroy({
     where: {
       id: req.params.id,
     }
   });
+
+  if (!categoryData) {
+    res.status(404).json({ message: 'No categories found with that id!' });
+    return;
+  }
+
   res.json(categoryData);
+}
+catch(err) {
+  res.status(500).json(err);
+}
 });
 
 module.exports = router;
